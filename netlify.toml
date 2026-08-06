@@ -1,0 +1,23 @@
+[build]
+  command = "npm run build"
+  publish = "netlify/public"
+
+[build.environment]
+  NODE_VERSION = "22.13.0"
+
+[functions]
+    directory = "netlify/functions"
+    node_bundler = "esbuild"
+    included_files = [
+      "./fragments/**",
+      "./injections/**",
+      "./mocks/**",
+      "./overrides/**",
+      "./script-overrides/**",
+      "!./.netlify/**",
+      "!./examples/**"
+    ]
+
+[dev]
+  port = 8888
+  autoLaunch = false

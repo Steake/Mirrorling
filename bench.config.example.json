@@ -1,0 +1,118 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 4173,
+    "publicOrigin": "https://staging.example.net",
+    "internalPrefix": "/__bench",
+    "access": {
+      "enabled": true,
+      "usernameEnv": "BENCH_AUTH_USER",
+      "passwordEnv": "BENCH_AUTH_PASSWORD"
+    }
+  },
+  "upstream": {
+    "origin": "https://www.example.com",
+    "websocket": true,
+    "rejectUnauthorized": true,
+    "timeoutMs": 30000
+  },
+  "security": {
+    "stripCsp": true,
+    "stripClearSiteData": true,
+    "disableServiceWorkers": true
+  },
+  "cookies": {
+    "mode": "isolate",
+    "sharedNames": [],
+    "stripSecureOnHttp": false
+  },
+  "html": {
+    "maxBytes": 5242880,
+    "rewriteSameOriginUrls": true,
+    "navigationGuard": true,
+    "directAssets": [
+      { "selector": "img[src]", "attribute": "src" },
+      { "selector": "video[src]", "attribute": "src" },
+      { "selector": "source[src]", "attribute": "src" },
+      { "selector": "source[srcset]", "attribute": "srcset" }
+    ]
+  },
+  "development": {
+    "enabled": false,
+    "inspector": true,
+    "liveReload": true,
+    "allowScaffolding": true
+  },
+  "scenarios": [
+    {
+      "id": "baseline",
+      "title": "Production mirror",
+      "description": "Production mirrored without experiment overlays.",
+      "default": true,
+      "vars": {},
+      "elementOverrides": [],
+      "injectedScripts": [],
+      "injectedStyles": [],
+      "scriptOverrides": [],
+      "routeOverrides": [],
+      "handoffs": []
+    },
+    {
+      "id": "experiment",
+      "title": "Experiment",
+      "description": "A selectively overlaid production flow.",
+      "default": false,
+      "vars": { "offerName": "Test offer" },
+      "elementOverrides": [
+        {
+          "match": "/target-page/**",
+          "operations": [
+            {
+              "type": "replace",
+              "selector": "#target-region",
+              "file": "./overrides/target-region/template.hbs",
+              "template": true,
+              "expect": { "count": 1 },
+              "onMismatch": "skip"
+            }
+          ]
+        }
+      ],
+      "injectedStyles": [
+        { "id": "experiment-style", "match": "/target-page/**", "file": "./injections/experiment.css" }
+      ],
+      "injectedScripts": [
+        { "id": "experiment-flow", "match": "/target-page/**", "file": "./injections/experiment.js", "timing": "dom-ready" }
+      ],
+      "scriptOverrides": [
+        { "id": "production-widget", "match": "/assets/widget.js", "strategy": "replace", "file": "./script-overrides/widget.js" }
+      ],
+      "routeOverrides": [
+        {
+          "match": "/api/test-flow",
+          "methods": ["GET"],
+          "status": 200,
+          "headers": {},
+          "json": { "enabled": true },
+          "delayMs": 0
+        }
+      ],
+      "handoffs": [
+        {
+          "id": "continue-production",
+          "match": "/staging-flow/complete",
+          "destination": "/real-production-step",
+          "preservePath": false,
+          "preserveQuery": false,
+          "carryQuery": ["ref"],
+          "status": 302,
+          "clientState": {
+            "transport": "none",
+            "parameter": "bench_state",
+            "stateKeys": []
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 4173,
+    "internalPrefix": "/__bench",
+    "access": {
+      "enabled": false,
+      "usernameEnv": "BENCH_AUTH_USER",
+      "passwordEnv": "BENCH_AUTH_PASSWORD"
+    }
+  },
+  "upstream": {
+    "websocket": true,
+    "rejectUnauthorized": true,
+    "timeoutMs": 30000
+  },
+  "security": {
+    "stripCsp": true,
+    "stripClearSiteData": true,
+    "disableServiceWorkers": true
+  },
+  "cookies": {
+    "mode": "isolate",
+    "sharedNames": [],
+    "stripSecureOnHttp": true
+  },
+  "html": {
+    "maxBytes": 5242880,
+    "rewriteSameOriginUrls": true,
+    "navigationGuard": true,
+    "directAssets": []
+  },
+  "development": {
+    "enabled": false,
+    "inspector": true,
+    "liveReload": true,
+    "allowScaffolding": true
+  },
+  "scenarios": [
+    {
+      "id": "baseline",
+      "title": "Production mirror",
+      "description": "Production mirrored without experiment overlays.",
+      "default": true,
+      "vars": {},
+      "elementOverrides": [],
+      "injectedScripts": [],
+      "injectedStyles": [],
+      "scriptOverrides": [],
+      "routeOverrides": [],
+      "handoffs": []
+    }
+  ]
+}

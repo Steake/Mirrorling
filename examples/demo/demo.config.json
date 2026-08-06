@@ -1,0 +1,132 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 4312,
+    "publicOrigin": "http://127.0.0.1:4312",
+    "internalPrefix": "/__bench",
+    "access": {
+      "enabled": false,
+      "usernameEnv": "BENCH_AUTH_USER",
+      "passwordEnv": "BENCH_AUTH_PASSWORD"
+    }
+  },
+  "upstream": {
+    "origin": "http://127.0.0.1:4311",
+    "websocket": true,
+    "rejectUnauthorized": true,
+    "timeoutMs": 30000
+  },
+  "security": {
+    "stripCsp": true,
+    "stripClearSiteData": true,
+    "disableServiceWorkers": true
+  },
+  "cookies": {
+    "mode": "isolate",
+    "sharedNames": [],
+    "stripSecureOnHttp": true
+  },
+  "html": {
+    "maxBytes": 5242880,
+    "rewriteSameOriginUrls": true,
+    "navigationGuard": true,
+    "directAssets": [
+      { "selector": "img[src]", "attribute": "src" },
+      { "selector": "source[srcset]", "attribute": "srcset" }
+    ]
+  },
+  "development": {
+    "enabled": false,
+    "inspector": true,
+    "liveReload": true,
+    "allowScaffolding": true
+  },
+  "scenarios": [
+    {
+      "id": "baseline",
+      "title": "Production baseline",
+      "description": "Unmodified production HTML with only the Mirrorling runtime injected.",
+      "default": true,
+      "vars": {},
+      "elementOverrides": [],
+      "injectedScripts": [],
+      "injectedStyles": [],
+      "scriptOverrides": [],
+      "routeOverrides": [],
+      "handoffs": []
+    },
+    {
+      "id": "checkout-v2",
+      "title": "Checkout variant",
+      "description": "Replaces one production region, injects behaviour, mocks one API, then hands back to production.",
+      "default": false,
+      "vars": {},
+      "elementOverrides": [
+        {
+          "match": "/checkout",
+          "operations": [
+            {
+              "type": "replace",
+              "selector": "#production-offer",
+              "file": "../../fragments/checkout-offer.html"
+            },
+            {
+              "type": "set-attribute",
+              "selector": "body",
+              "attribute": "data-experiment",
+              "value": "checkout-v2"
+            }
+          ]
+        }
+      ],
+      "injectedStyles": [
+        { "id": "checkout-style", "match": "/checkout", "file": "../../injections/checkout.css" }
+      ],
+      "injectedScripts": [
+        { "id": "checkout-flow", "match": "/checkout", "file": "../../injections/checkout.js", "timing": "body-end" }
+      ],
+      "scriptOverrides": [],
+      "routeOverrides": [
+        {
+          "match": "/api/recommendation",
+          "methods": ["GET"],
+          "status": 200,
+          "headers": { "x-bench-fixture": "checkout-v2" },
+          "file": "../../mocks/recommendation.json",
+          "delayMs": 80
+        }
+      ],
+      "handoffs": [
+        {
+          "id": "finish-by-route",
+          "match": "/flow/complete",
+          "methods": ["GET"],
+          "destination": "/account",
+          "preservePath": false,
+          "preserveQuery": false,
+          "carryQuery": ["plan", "ref"],
+          "status": 302,
+          "clientState": {
+            "transport": "none",
+            "parameter": "bench_state",
+            "stateKeys": []
+          }
+        },
+        {
+          "id": "finish-client-flow",
+          "match": "/__never_route_match__",
+          "destination": "/account",
+          "preservePath": false,
+          "preserveQuery": false,
+          "carryQuery": ["ref"],
+          "status": 302,
+          "clientState": {
+            "transport": "query",
+            "parameter": "bench_state",
+            "stateKeys": ["plan", "coupon"]
+          }
+        }
+      ]
+    }
+  ]
+}

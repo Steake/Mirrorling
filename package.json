@@ -1,0 +1,65 @@
+{
+  "name": "mirrorling",
+  "version": "1.2.0-rc.1",
+  "private": true,
+  "description": "Borrow a living production site, stage precise interventions, then hand the browser cleanly back.",
+  "license": "MIT",
+  "keywords": [
+    "reverse-proxy",
+    "staging",
+    "testing",
+    "netlify",
+    "experimentation"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx src/cli.ts --dev",
+    "serve:dev": "tsx src/cli.ts",
+    "prestart": "npm run build",
+    "start": "node dist/src/cli.js",
+    "premirror": "npm run build",
+    "mirror": "node dist/src/cli.js --temporary",
+    "presetup": "npm run build",
+    "setup": "node dist/src/setup.js",
+    "setup:dev": "tsx src/setup.ts",
+    "fixture": "tsx fixtures/production.ts",
+    "fixture:built": "node dist/fixtures/production.js",
+    "demo:bench": "node dist/src/cli.js --config examples/demo/demo.config.json",
+    "predemo": "npm run build",
+    "demo": "concurrently -k -s first \"npm:fixture:built\" \"npm:demo:bench\"",
+    "docs:capture": "npm run build && node scripts/capture-readme.mjs",
+    "test": "node --import tsx --test tests/unit/*.test.ts tests/integration/*.test.ts",
+    "pretest:e2e": "npm run build",
+    "test:e2e": "playwright test",
+    "test:netlify": "node --import tsx --test tests/integration/fetch-handler.test.ts",
+    "netlify:dev": "npx --yes netlify-cli@27.1.0 dev",
+    "netlify:build": "npx --yes netlify-cli@27.1.0 build --offline",
+    "smoke:netlify-bundle": "node scripts/netlify-bundle-smoke.mjs",
+    "check": "npm run typecheck && npm test",
+    "repo:hygiene": "node scripts/repo-hygiene.mjs",
+    "rc:gate:core": "node scripts/rc-gate.mjs --core",
+    "rc:gate": "node scripts/rc-gate.mjs"
+  },
+  "dependencies": {
+    "cheerio": "1.2.0",
+    "chokidar": "5.0.0",
+    "handlebars": "4.7.9",
+    "http-proxy": "1.18.1",
+    "minimatch": "10.2.6"
+  },
+  "devDependencies": {
+    "@netlify/functions": "5.3.0",
+    "@playwright/test": "1.62.1",
+    "@types/http-proxy": "1.17.17",
+    "@types/node": "22.20.1",
+    "concurrently": "10.0.4",
+    "fflate": "0.8.3",
+    "tsx": "4.23.8",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,15 @@
+<section id="production-offer" class="bench-offer" aria-labelledby="bench-offer-title">
+  <p class="bench-kicker">Staging overlay</p>
+  <h2 id="bench-offer-title">A sharper checkout, tested against the living site</h2>
+  <p>The surrounding navigation, production script and asset pipeline remain intact.</p>
+  <div class="bench-actions">
+    <button id="load-recommendation" type="button">Load staged recommendation</button>
+    <button
+      id="finish-client-flow"
+      type="button"
+      data-bench-handoff="finish-client-flow"
+      data-bench-state='{"plan":"pro","coupon":"BENCH20"}'
+    >Continue on production</button>
+  </div>
+  <output id="recommendation-result" aria-live="polite"></output>
+</section>

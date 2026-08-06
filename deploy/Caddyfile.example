@@ -1,0 +1,6 @@
+# Caddy terminates the staging site's separate TLS certificate and forwards
+# ordinary HTTP to Mirrorling. Replace the hostname and local port.
+staging.example.net {
+  encode zstd gzip
+  reverse_proxy 127.0.0.1:4173
+}
