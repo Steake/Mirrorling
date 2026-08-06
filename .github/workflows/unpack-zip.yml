@@ -1,0 +1,50 @@
+name: Unpack zip into repo
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      - name: Ensure unzip and rsync
+        run: sudo apt-get update && sudo apt-get install -y unzip rsync
+      - name: Unpack zip
+        run: |
+          if [ ! -f mirrorling-ready-to-push.zip ]; then
+            echo "ZIP not found in repo root; exiting without changes." && exit 0
+          fi
+          unzip -o mirrorling-ready-to-push.zip -d tmp_unzip
+          # If the archive has a top-level folder named 'mirrorling', use its contents, otherwise copy all
+          if [ -d tmp_unzip/mirrorling ]; then
+            SRC="tmp_unzip/mirrorling/"
+          else
+            # If there's a single directory inside tmp_unzip, use it; otherwise use tmp_unzip root
+            dirs=(tmp_unzip/*)
+            if [ ${#dirs[@]} -eq 1 ] && [ -d "${dirs[0]}" ]; then
+              SRC="${dirs[0]}/"
+            else
+              SRC="tmp_unzip/"
+            fi
+          fi
+          rsync -a "$SRC" . --exclude='.git' || true
+          rm -rf tmp_unzip
+      - name: Commit extracted files and remove zip
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git rm --ignore-unmatch mirrorling-ready-to-push.zip || true
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Unpack mirrorling-ready-to-push.zip into repo and remove zip"
+            git push origin HEAD:master
+          fi
