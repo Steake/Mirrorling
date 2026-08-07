@@ -34,7 +34,7 @@ The strict gate is executable policy. The deployment smoke test is contact with 
 | Field | Value |
 | --- | --- |
 | Tag | `v1.2.0-rc.1` |
-| Target commit | `019e4d0781dee4a5fc2c4b1abb3c71c3be44655f` |
+| Target commit | The exact `main` commit that passes the strict gate and deployment smoke test |
 | Release title | Mirrorling v1.2.0-rc.1 — Hijack production. Break nothing. |
 | Release type | Prerelease |
 
