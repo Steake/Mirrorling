@@ -1,63 +1,44 @@
-# Put Mirrorling on GitHub from a phone
+# Release Mirrorling without lying to yourself
 
-A laptop is convenient. It is not a constitutional requirement. The release candidate has already faced the machinery; your phone merely has to move it.
+Publication is the point at which private confidence meets public evidence. The repository already exists. The useful question is therefore no longer how to smuggle a ZIP file onto GitHub, but whether the commit being released has earned the version attached to it.
 
-## Copy this into GitHub
+## Repository identity
 
 | Field | Value |
 | --- | --- |
-| Repository name | `mirrorling` |
+| Repository | `Steake/Mirrorling` |
 | Visibility | Public |
+| Default branch | `main` |
 | Description | Borrow a living production site, stage precise interventions, then hand the browser cleanly back. |
 | Topics | `reverse-proxy`, `staging`, `testing`, `netlify`, `web-testing`, `experimentation`, `typescript`, `developer-tools` |
-| Default branch | `main` |
-| First release tag | `v1.2.0-rc.1` |
-| First release title | Mirrorling v1.2.0-rc.1 — under temporary management |
 | Social preview | `docs/brand/mirrorling-social-preview.png` |
 
-Leave the website field empty until there is a deployment worth sending people to. A vacant field is less embarrassing than a dead URL.
+Keep the website field empty until a deployment deserves traffic. A blank field makes no claim; a dead URL makes one and loses.
 
-## The clean iPhone or iPad route
+## Candidate sequence
 
-1. On GitHub, create an empty public repository named `mirrorling`. Do **not** ask GitHub to add a README, licence or `.gitignore`; all three already exist and duelling first commits are a tax on impatience.
-2. Download `mirrorling-ready-to-push.zip` and tap it once in Files to extract it.
-3. Move the extracted `mirrorling` directory into the Working Copy location in Files. It contains a complete Git repository on `main`, with the release-candidate commit already made.
-4. In Working Copy, connect GitHub, add the empty repository as `origin`, then push `main`.
-5. Open the repository on GitHub and make certain the mascot, masthead and inspector image render in the README.
+1. Begin from a clean checkout of `main`. Fetch before forming opinions about what `main` contains.
+2. Confirm `package.json` and `CHANGELOG.md` describe the same intended version.
+3. Run `npm ci` under Node.js 22.13.0 or newer.
+4. Run `npm run rc:gate`. The core gate alone is insufficient for a browser-facing release.
+5. Deploy an authenticated Netlify preview with `BENCH_UPSTREAM_ORIGIN` scoped to Functions.
+6. Complete the manual deployment smoke test in [RELEASE.md](RELEASE.md), including the no-scenario baseline and same-tab production handover.
+7. Tag the exact signed-off commit. Do not move a published tag to rescue an untidy morning.
+8. Create a GitHub prerelease, copy the relevant changelog entry and attach the clean source archive when a hand-delivered artefact is useful.
+9. Open the tag and release pages in a clean browser and verify that the commit, notes and assets agree.
 
-[Working Copy's own guide](https://workingcopy.app/manual.html) documents Files imports, GitHub remotes and pushing. Its push feature requires the paid unlock. If you use another serious mobile Git client, the operation is the same: import the extracted repository, add the remote and push `main`.
+The strict gate is executable policy. The deployment smoke test is contact with reality. Neither can deputise for the other.
 
-The ordinary `mirrorling.zip` is the clean source edition. When its extracted directory is copied into Working Copy without a `.git` directory, Working Copy will initialise a new repository and stage the files; commit them with `Initial release candidate: Mirrorling v1.2.0-rc.1`, add the remote and push.
+## First release candidate
 
-## Any other phone with Git
+| Field | Value |
+| --- | --- |
+| Tag | `v1.2.0-rc.1` |
+| Target commit | `019e4d0781dee4a5fc2c4b1abb3c71c3be44655f` |
+| Release title | Mirrorling v1.2.0-rc.1 — Hijack production. Break nothing. |
+| Release type | Prerelease |
 
-Unzip `mirrorling-ready-to-push.zip`, import the resulting directory into a mobile Git client, add the empty GitHub repository as `origin` and push `main`. If the client exposes a terminal, the entire ceremony is three commands:
-
-```sh
-cd /path/to/mirrorling
-git remote add origin https://github.com/YOUR-ACCOUNT/mirrorling.git
-git push -u origin main
-```
-
-`mirrorling.bundle` is the smaller expert fallback. A mobile terminal with ordinary Git can turn it back into the same committed repository:
-
-```sh
-git clone /path/to/mirrorling.bundle mirrorling
-git -C mirrorling remote set-url origin https://github.com/YOUR-ACCOUNT/mirrorling.git
-git -C mirrorling push -u origin main
-```
-
-Do not upload either ZIP as a single file through GitHub's web form. GitHub will commit the archive intact, like a suitcase nobody can open from the hallway. It does not unpack archives into repository trees.
-
-## Dress the repository after the push
-
-1. In the repository's **About** panel, paste the description and topics above.
-2. In **Settings → General → Social preview**, upload `docs/brand/mirrorling-social-preview.png`. It is already the recommended 1280 × 640 and remains below GitHub's 1 MB limit.
-3. Create a release from tag `v1.2.0-rc.1`, use the title above and paste the notes below.
-4. Attach the clean `mirrorling.zip` source archive to the release if you want a stable hand-delivered artefact in addition to GitHub's generated archives.
-5. Import the repository into Netlify when ready. `netlify.toml` owns the build and routing; set `BENCH_UPSTREAM_ORIGIN` for the authorised production origin, or commit the intended origin in `bench.config.json`.
-
-## Ready-to-paste release notes
+### Release notes
 
 > Mirrorling borrows a living production site through an independent staging origin, permits precise element overrides, independent JavaScript and production-script replacement, then hands the same browser tab cleanly back to production using client-side state alone.
 >
@@ -65,9 +46,28 @@ Do not upload either ZIP as a single file through GitHub's web form. GitHub will
 >
 > No scenario means the baseline mirror. No YAML means no YAML. Both are policy, not mood.
 
+## Artefacts
+
+Build release artefacts from the published tag or commit, never from an unexplained working directory.
+
+- `mirrorling.zip` is the clean tracked source tree without Git metadata.
+- `mirrorling-ready-to-push.zip` contains a complete checkout whose `main` follows the published repository.
+- `mirrorling.bundle` is the portable Git fallback and must verify with `git bundle verify`.
+
+Before distribution, test both ZIPs, verify the bundle and compare the social-preview SHA across all three source forms. An archive is not correct because its filename sounds reassuring.
+
+## Repository government
+
+- Protect `main` against deletion and force-pushes.
+- Prefer linear, squashable changes small enough to review honestly.
+- Keep Issues enabled; disable empty Wiki and Projects surfaces until they acquire a real purpose.
+- Use GitHub private vulnerability reporting for security disclosures.
+- Keep hosted workflow theatre out of the repository. The portable release gate remains authoritative, and authored YAML remains forbidden.
+
 ## Final prohibitions
 
-- Do not commit `.env`, credentials, customer data or private certificates.
+- Do not commit `.env`, credentials, customer data, private certificates or browser traces containing secrets.
 - Do not publish the package to npm; `private: true` is deliberate.
 - Do not claim WebSocket or authoring parity on Netlify. Those remain local Node-runtime features.
+- Do not treat a successful mirror of one friendly page as proof that every production application will cooperate.
 - Do not soften the README into corporate porridge. There is enough of that already.

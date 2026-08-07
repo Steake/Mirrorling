@@ -34,4 +34,4 @@ The hygiene gate forbids authored YAML. This is deliberate. A hosted CI service 
 
 ## Publication
 
-Create the GitHub release from the signed-off commit, attach the clean source archive and copy the relevant changelog section into the release notes. [GITHUB.md](GITHUB.md) contains the ready-to-paste repository metadata, phone publication route and first release copy. Do not publish the package to npm; `private: true` exists to prevent that accident.
+Create the GitHub release from the signed-off commit, attach the clean source archive and copy the relevant changelog section into the release notes. [GITHUB.md](GITHUB.md) contains the repository identity, candidate sequence and first-release copy. Do not publish the package to npm; `private: true` exists to prevent that accident.
